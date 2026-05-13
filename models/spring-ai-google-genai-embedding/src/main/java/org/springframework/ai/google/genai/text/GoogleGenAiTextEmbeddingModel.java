@@ -150,9 +150,10 @@ public class GoogleGenAiTextEmbeddingModel extends AbstractEmbeddingModel {
 					configBuilder.outputDimensionality(options.getDimensions());
 				}
 
-				// Set task type if specified - this might need to be handled differently
-				// as the new SDK might not have a direct taskType field
-				// We'll need to check the SDK documentation for this
+				// Set task type if specified
+				if (options.getTaskType() != null) {
+					configBuilder.taskType(options.getTaskType().name());
+				}
 
 				EmbedContentConfig config = configBuilder.build();
 
