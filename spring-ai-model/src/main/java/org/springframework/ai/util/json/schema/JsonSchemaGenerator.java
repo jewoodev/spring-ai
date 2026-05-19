@@ -111,6 +111,10 @@ public final class JsonSchemaGenerator {
 			schemaGeneratorConfigBuilder.with(new KotlinModule());
 		}
 
+		if (JsonNullableSupport.isPresent()) {
+			schemaGeneratorConfigBuilder.with(new JsonNullableSchemaModule());
+		}
+
 		SchemaGeneratorConfig typeSchemaGeneratorConfig = schemaGeneratorConfigBuilder.build();
 		TYPE_SCHEMA_GENERATOR = new SchemaGenerator(typeSchemaGeneratorConfig);
 
@@ -222,6 +226,10 @@ public final class JsonSchemaGenerator {
 		if (schemaAnnotation != null) {
 			return schemaAnnotation.requiredMode() == Schema.RequiredMode.REQUIRED
 					|| schemaAnnotation.requiredMode() == Schema.RequiredMode.AUTO || schemaAnnotation.required();
+		}
+
+		if (JsonNullableSupport.isJsonNullableType(parameter.getParameterizedType())) {
+			return false;
 		}
 
 		Nullness nullness = Nullness.forParameter(parameter);

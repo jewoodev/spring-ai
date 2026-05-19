@@ -29,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyDescription;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import tools.jackson.databind.JsonNode;
 
 import org.springframework.ai.chat.model.ToolContext;
@@ -232,6 +233,189 @@ class JsonSchemaGeneratorTests {
 				    "required": [
 				        "password"
 				    ],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForMethodWithJsonNullableParameter() throws Exception {
+		Method method = TestMethods.class.getDeclaredMethod("jsonNullableMethod", JsonNullable.class);
+
+		String schema = JsonSchemaGenerator.generateForMethodInput(method);
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "nickname": {
+				            "type": ["string", "null"]
+				        }
+				    },
+				    "required": [],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForMethodWithOptionalJsonNullableParameter() throws Exception {
+		Method method = TestMethods.class.getDeclaredMethod("optionalJsonNullableMethod", JsonNullable.class);
+
+		String schema = JsonSchemaGenerator.generateForMethodInput(method);
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "nickname": {
+				            "type": ["string", "null"]
+				        }
+				    },
+				    "required": [],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForMethodWithRequiredJsonNullableParameter() throws Exception {
+		Method method = TestMethods.class.getDeclaredMethod("requiredJsonNullableMethod", JsonNullable.class);
+
+		String schema = JsonSchemaGenerator.generateForMethodInput(method);
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "nickname": {
+				            "type": ["string", "null"]
+				        }
+				    },
+				    "required": ["nickname"],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForMethodWithJsonNullableListParameter() throws Exception {
+		Method method = TestMethods.class.getDeclaredMethod("jsonNullableListMethod", JsonNullable.class);
+
+		String schema = JsonSchemaGenerator.generateForMethodInput(method);
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "tags": {
+				            "type": ["array", "null"],
+				            "items": {
+				                "type": "string"
+				            }
+				        }
+				    },
+				    "required": [],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForMethodWithJsonNullableObjectParameter() throws Exception {
+		Method method = TestMethods.class.getDeclaredMethod("jsonNullableObjectMethod", JsonNullable.class);
+
+		String schema = JsonSchemaGenerator.generateForMethodInput(method);
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "address": {
+				            "type": ["object", "null"],
+				            "properties": {
+				                "city": {
+				                    "type": "string"
+				                },
+				                "zip": {
+				                    "type": "string"
+				                }
+				            },
+				            "required": ["city", "zip"],
+				            "additionalProperties": false
+				        }
+				    },
+				    "required": [],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForTypeWithJsonNullableObjectField() {
+		String schema = JsonSchemaGenerator.generateForType(JsonNullableAddressPerson.class);
+
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "address": {
+				            "type": ["object", "null"],
+				            "properties": {
+				                "city": {
+				                    "type": "string"
+				                },
+				                "zip": {
+				                    "type": "string"
+				                }
+				            },
+				            "required": ["city", "zip"],
+				            "additionalProperties": false
+				        },
+				        "id": {
+				            "type": "integer",
+				            "format": "int32"
+				        }
+				    },
+				    "required": ["id"],
+				    "additionalProperties": false
+				}
+				""";
+
+		assertThat(schema).isEqualToIgnoringWhitespace(expectedJsonSchema);
+	}
+
+	@Test
+	void generateSchemaForTypeWithJsonNullableField() {
+		String schema = JsonSchemaGenerator.generateForType(JsonNullablePerson.class);
+
+		String expectedJsonSchema = """
+				{
+				    "$schema": "https://json-schema.org/draft/2020-12/schema",
+				    "type": "object",
+				    "properties": {
+				        "email": {
+				            "type": ["string", "null"]
+				        },
+				        "id": {
+				            "type": "integer",
+				            "format": "int32"
+				        }
+				    },
+				    "required": ["id"],
 				    "additionalProperties": false
 				}
 				""";
@@ -759,6 +943,21 @@ class JsonSchemaGeneratorTests {
 		public void nullableMethod(@Nullable String username, String password) {
 		}
 
+		public void jsonNullableMethod(JsonNullable<String> nickname) {
+		}
+
+		public void optionalJsonNullableMethod(@ToolParam(required = false) JsonNullable<String> nickname) {
+		}
+
+		public void requiredJsonNullableMethod(@ToolParam(required = true) JsonNullable<String> nickname) {
+		}
+
+		public void jsonNullableListMethod(JsonNullable<List<String>> tags) {
+		}
+
+		public void jsonNullableObjectMethod(JsonNullable<SimpleAddress> address) {
+		}
+
 		public void complexMethod(List<String> items, TestData data, MoreTestData moreData) {
 		}
 
@@ -805,6 +1004,18 @@ class JsonSchemaGeneratorTests {
 	}
 
 	record WithMapField(String name, Map<String, Integer> scores) {
+
+	}
+
+	record JsonNullablePerson(int id, JsonNullable<String> email) {
+
+	}
+
+	record SimpleAddress(String city, String zip) {
+
+	}
+
+	record JsonNullableAddressPerson(int id, JsonNullable<SimpleAddress> address) {
 
 	}
 

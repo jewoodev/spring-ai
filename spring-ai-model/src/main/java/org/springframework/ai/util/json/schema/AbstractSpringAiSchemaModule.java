@@ -111,6 +111,10 @@ public abstract class AbstractSpringAiSchemaModule implements Module {
 					|| schemaAnnotation.requiredMode() == Schema.RequiredMode.AUTO || schemaAnnotation.required();
 		}
 
+		if (JsonNullableSupport.isJsonNullableType(member.getDeclaredType().getErasedType())) {
+			return false;
+		}
+
 		Nullness nullness;
 		if (member instanceof FieldScope fs) {
 			nullness = Nullness.forField(fs.getRawMember());
