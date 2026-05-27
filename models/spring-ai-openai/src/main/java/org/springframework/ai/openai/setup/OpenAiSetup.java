@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.openai.azure.AzureOpenAIServiceVersion;
+import com.openai.azure.AzureUrlPathMode;
 import com.openai.azure.credential.AzureApiKeyCredential;
 import com.openai.client.OpenAIClient;
 import com.openai.client.OpenAIClientAsync;
@@ -71,7 +72,11 @@ public final class OpenAiSetup {
 		var modelProvider = detectModelProvider(isAzure, isGitHubModels, baseUrl, azureDeploymentName,
 				azureOpenAiServiceVersion);
 		OpenAIOkHttpClient.Builder builder = OpenAIOkHttpClient.builder();
-		builder.baseUrl(calculateBaseUrl(baseUrl, modelProvider, modelName, azureDeploymentName));
+		String calculatedBaseUrl = calculateBaseUrl(baseUrl, modelProvider, modelName, azureDeploymentName);
+		builder.baseUrl(calculatedBaseUrl);
+		if (modelProvider == ModelProvider.MICROSOFT_FOUNDRY) {
+			builder.azureUrlPathMode(resolveAzureUrlPathMode(calculatedBaseUrl));
+		}
 
 		String calculatedApiKey = apiKey != null ? apiKey : detectApiKey(modelProvider);
 		if (calculatedApiKey != null) {
@@ -129,7 +134,11 @@ public final class OpenAiSetup {
 		var modelProvider = detectModelProvider(isAzure, isGitHubModels, baseUrl, azureDeploymentName,
 				azureOpenAiServiceVersion);
 		OpenAIOkHttpClientAsync.Builder builder = OpenAIOkHttpClientAsync.builder();
-		builder.baseUrl(calculateBaseUrl(baseUrl, modelProvider, modelName, azureDeploymentName));
+		String calculatedBaseUrl = calculateBaseUrl(baseUrl, modelProvider, modelName, azureDeploymentName);
+		builder.baseUrl(calculatedBaseUrl);
+		if (modelProvider == ModelProvider.MICROSOFT_FOUNDRY) {
+			builder.azureUrlPath(resolveAzureUrlPathMode(calculatedBaseUrl));
+		}
 
 		String calculatedApiKey = apiKey != null ? apiKey : detectApiKey(modelProvider);
 		if (calculatedApiKey != null) {
@@ -273,6 +282,11 @@ public final class OpenAiSetup {
 			return System.getenv(GITHUB_TOKEN);
 		}
 		return null;
+	}
+
+	static AzureUrlPathMode resolveAzureUrlPathMode(@Nullable String baseUrl) {
+		return (baseUrl != null && baseUrl.trim().endsWith("/openai/v1")) ? AzureUrlPathMode.UNIFIED
+				: AzureUrlPathMode.LEGACY;
 	}
 
 }
