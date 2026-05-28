@@ -115,6 +115,11 @@ public enum AiObservationAttributes {
 	 * The name of the model that generated the response.
 	 */
 	RESPONSE_MODEL("gen_ai.response.model"),
+	/**
+	 * The completion messages returned by the model. Opt-in, as it may contain sensitive
+	 * information.
+	 */
+	OUTPUT_MESSAGES("gen_ai.output.messages"),
 
 	// GenAI Usage
 

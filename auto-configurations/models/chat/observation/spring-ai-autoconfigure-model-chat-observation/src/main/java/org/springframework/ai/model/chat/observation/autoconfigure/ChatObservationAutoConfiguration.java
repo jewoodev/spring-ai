@@ -27,6 +27,7 @@ import org.springframework.ai.chat.client.advisor.observation.AdvisorObservation
 import org.springframework.ai.chat.client.observation.ChatClientObservationContext;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.observation.ChatModelCompletionObservationHandler;
+import org.springframework.ai.chat.observation.ChatModelCompletionSpanContentObservationHandler;
 import org.springframework.ai.chat.observation.ChatModelMeterObservationHandler;
 import org.springframework.ai.chat.observation.ChatModelObservationContext;
 import org.springframework.ai.chat.observation.ChatModelPromptContentObservationHandler;
@@ -104,6 +105,14 @@ public class ChatObservationAutoConfiguration {
 				Tracer tracer) {
 			logCompletionWarning();
 			return new TracingAwareLoggingObservationHandler<>(new ChatModelCompletionObservationHandler(), tracer);
+		}
+
+		@Bean
+		@ConditionalOnMissingBean
+		@ConditionalOnProperty(prefix = ChatObservationProperties.CONFIG_PREFIX, name = "log-completion",
+				havingValue = "true")
+		ChatModelCompletionSpanContentObservationHandler chatModelCompletionSpanContentObservationHandler() {
+			return new ChatModelCompletionSpanContentObservationHandler();
 		}
 
 		@Bean
